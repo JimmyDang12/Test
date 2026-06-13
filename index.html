@@ -5,10 +5,89 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smartlaptop Store</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6f8; color: #1a1a1a; }
 
+/* NAV */
+.navbar {
+  background: #0a1628;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo { color: #5ba8f5; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.nav-logo i { font-size: 18px; }
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-user { font-size: 13px; color: #a0c4f1; }
+.btn-nav {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(55,138,221,0.2); color: #5ba8f5;
+  border: 0.5px solid rgba(55,138,221,0.4); border-radius: 8px;
+  padding: 7px 14px; font-size: 13px; cursor: pointer; text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-nav:hover { background: rgba(55,138,221,0.35); }
+.btn-nav-logout {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: #7a9bbf;
+  border: 0.5px solid rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 7px 14px; font-size: 13px; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-nav-logout:hover { background: rgba(255,255,255,0.05); }
+
+/* MODAL OVERLAY */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%; max-width: 400px;
+  margin: 1rem;
+  position: relative;
+}
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; cursor: pointer;
+  color: #888; font-size: 20px;
+}
+.modal h2 { font-size: 20px; font-weight: 600; margin-bottom: 0.25rem; color: #1a1a1a; }
+.modal-sub { font-size: 14px; color: #888; margin-bottom: 1.5rem; }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
+.form-group input {
+  width: 100%; padding: 10px 14px;
+  border: 0.5px solid #ddd; border-radius: 8px;
+  font-size: 14px; outline: none;
+  transition: border-color 0.15s;
+}
+.form-group input:focus { border-color: #378ADD; }
+.btn-submit {
+  width: 100%; padding: 12px;
+  background: #378ADD; color: #fff;
+  border: none; border-radius: 8px;
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  transition: background 0.15s; margin-top: 0.5rem;
+}
+.btn-submit:hover { background: #185FA5; }
+.btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+.modal-switch { text-align: center; margin-top: 1rem; font-size: 13px; color: #888; }
+.modal-switch a { color: #378ADD; cursor: pointer; text-decoration: none; }
+.modal-switch a:hover { text-decoration: underline; }
+.msg-error { font-size: 13px; color: #e24b4a; margin-top: 8px; padding: 8px 12px; background: #fff0f0; border-radius: 6px; }
+.msg-success { font-size: 13px; color: #1a8057; margin-top: 8px; padding: 8px 12px; background: #f0fff8; border-radius: 6px; }
+
+/* HERO */
 .hero {
   background: linear-gradient(135deg, #0a1628 0%, #1a2f4e 50%, #0f2040 100%);
   padding: 3rem 1.5rem 2.5rem;
@@ -17,240 +96,98 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   overflow: hidden;
 }
 .hero::before {
-  content: '';
-  position: absolute;
+  content: ''; position: absolute;
   top: -60px; right: -60px;
-  width: 220px; height: 220px;
-  border-radius: 50%;
+  width: 220px; height: 220px; border-radius: 50%;
   background: rgba(55,138,221,0.12);
 }
 .hero::after {
-  content: '';
-  position: absolute;
+  content: ''; position: absolute;
   bottom: -40px; left: -40px;
-  width: 160px; height: 160px;
-  border-radius: 50%;
+  width: 160px; height: 160px; border-radius: 50%;
   background: rgba(55,138,221,0.08);
 }
 .logo-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
   background: rgba(55,138,221,0.15);
   border: 0.5px solid rgba(55,138,221,0.35);
-  border-radius: 999px;
-  padding: 6px 16px;
-  margin-bottom: 1.5rem;
+  border-radius: 999px; padding: 6px 16px; margin-bottom: 1.5rem;
 }
 .logo-badge i { color: #5ba8f5; font-size: 16px; }
 .logo-badge span { color: #a0c4f1; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
-.hero h1 {
-  font-size: 32px;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.3;
-  margin-bottom: 0.5rem;
-}
+.hero h1 { font-size: 32px; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 0.5rem; }
 .hero h1 span { color: #5ba8f5; }
-.hero-sub {
-  font-size: 15px;
-  color: #7a9bbf;
-  margin-bottom: 2rem;
-}
-.cta-row {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
+.hero-sub { font-size: 15px; color: #7a9bbf; margin-bottom: 2rem; }
+.cta-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #378ADD;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 22px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #378ADD; color: #fff; border: none; border-radius: 8px;
+  padding: 12px 22px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none;
 }
 .btn-outline {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  color: #a0c4f1;
-  border: 0.5px solid rgba(55,138,221,0.4);
-  border-radius: 8px;
-  padding: 12px 22px;
-  font-size: 15px;
-  cursor: pointer;
-  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: #a0c4f1;
+  border: 0.5px solid rgba(55,138,221,0.4); border-radius: 8px;
+  padding: 12px 22px; font-size: 15px; cursor: pointer; text-decoration: none;
 }
 
+/* PRODUCTS */
 .section { padding: 2rem 1.5rem; max-width: 900px; margin: 0 auto; }
-.section-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #888;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
-}
+.section-label { font-size: 12px; font-weight: 600; color: #888; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 .product-card {
-  background: #ffffff;
-  border: 0.5px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: #fff; border: 0.5px solid #e0e0e0; border-radius: 12px; padding: 1.5rem;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
-.product-card:hover {
-  border-color: #378ADD;
-  box-shadow: 0 4px 20px rgba(55,138,221,0.1);
-}
+.product-card:hover { border-color: #378ADD; box-shadow: 0 4px 20px rgba(55,138,221,0.1); }
 .product-icon-wrap {
-  width: 52px; height: 52px;
-  background: #E6F1FB;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 1rem;
+  width: 52px; height: 52px; background: #E6F1FB; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;
 }
 .product-icon-wrap i { font-size: 24px; color: #185FA5; }
-.product-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
-.product-specs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 1rem;
-}
-.spec-tag {
-  font-size: 12px;
-  background: #f5f6f8;
-  color: #555;
-  border-radius: 999px;
-  padding: 4px 12px;
-  border: 0.5px solid #e0e0e0;
-}
-.product-price {
-  font-size: 22px;
-  font-weight: 700;
-  color: #185FA5;
-  margin-bottom: 1rem;
-}
-.product-price .currency {
-  font-size: 14px;
-  color: #888;
-  font-weight: 400;
-  margin-left: 2px;
-}
+.product-name { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; line-height: 1.4; }
+.product-specs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+.spec-tag { font-size: 12px; background: #f5f6f8; color: #555; border-radius: 999px; padding: 4px 12px; border: 0.5px solid #e0e0e0; }
+.product-price { font-size: 22px; font-weight: 700; color: #185FA5; margin-bottom: 1rem; }
+.product-price .currency { font-size: 14px; color: #888; font-weight: 400; margin-left: 2px; }
 .btn-buy {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: #378ADD;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 11px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: #378ADD; color: #fff; border: none; border-radius: 8px;
+  padding: 11px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none;
   transition: background 0.15s;
 }
 .btn-buy:hover { background: #185FA5; }
 
-.divider {
-  height: 0.5px;
-  background: #e0e0e0;
-  margin: 0 1.5rem;
-}
+.divider { height: 0.5px; background: #e0e0e0; margin: 0 1.5rem; }
 
-.contact-section {
-  padding: 2rem 1.5rem;
-  background: #f0f4f9;
-}
+/* CONTACT */
+.contact-section { padding: 2rem 1.5rem; background: #f0f4f9; }
 .contact-inner { max-width: 900px; margin: 0 auto; }
 .contact-card {
-  background: #ffffff;
-  border: 0.5px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
+  background: #fff; border: 0.5px solid #e0e0e0; border-radius: 12px; padding: 1.5rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
 }
 .contact-info { display: flex; align-items: center; gap: 14px; }
 .contact-avatar {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: #B5D4F4;
+  width: 48px; height: 48px; border-radius: 50%; background: #B5D4F4;
   display: flex; align-items: center; justify-content: center;
   font-size: 14px; font-weight: 600; color: #0C447C;
 }
 .contact-name { font-size: 16px; font-weight: 600; color: #1a1a1a; }
 .contact-phone { font-size: 14px; color: #666; margin-top: 3px; }
 .btn-zalo {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #0068FF;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.15s;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #0068FF; color: #fff; border: none; border-radius: 8px;
+  padding: 12px 20px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none;
 }
-.btn-zalo:hover { background: #0052cc; }
 .btn-call {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #22a06b;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.15s;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #22a06b; color: #fff; border: none; border-radius: 8px;
+  padding: 12px 20px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none;
 }
-.btn-call:hover { background: #1a8057; }
 .contact-btns { display: flex; gap: 10px; flex-wrap: wrap; }
 
-.footer {
-  padding: 1.5rem;
-  text-align: center;
-  font-size: 13px;
-  color: #999;
-  background: #fff;
-  border-top: 0.5px solid #e0e0e0;
-}
+.footer { padding: 1.5rem; text-align: center; font-size: 13px; color: #999; background: #fff; border-top: 0.5px solid #e0e0e0; }
 
 @media (max-width: 480px) {
   .hero h1 { font-size: 24px; }
@@ -260,12 +197,78 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </head>
 <body>
 
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <i class="ti ti-device-laptop"></i>
+    Smartlaptop Store
+  </div>
+  <div class="nav-actions">
+    <span class="nav-user" id="nav-user-email"></span>
+    <button class="btn-nav" id="btn-open-login" onclick="openModal('login')">
+      <i class="ti ti-user"></i> Đăng nhập
+    </button>
+    <button class="btn-nav-logout" id="btn-logout" onclick="logout()" style="display:none">
+      <i class="ti ti-logout"></i> Đăng xuất
+    </button>
+  </div>
+</nav>
+
+<!-- MODAL ĐĂNG NHẬP -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    <h2>Đăng nhập</h2>
+    <p class="modal-sub">Chào mừng bạn trở lại!</p>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="example@email.com">
+    </div>
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" id="login-pass" placeholder="••••••••">
+    </div>
+    <div id="login-msg"></div>
+    <button class="btn-submit" id="btn-login" onclick="login()">
+      <i class="ti ti-login"></i> Đăng nhập
+    </button>
+    <p class="modal-switch">Chưa có tài khoản? <a onclick="openModal('register')">Đăng ký ngay</a></p>
+  </div>
+</div>
+
+<!-- MODAL ĐĂNG KÝ -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    <h2>Tạo tài khoản</h2>
+    <p class="modal-sub">Đăng ký để theo dõi đơn hàng và nhận ưu đãi</p>
+    <div class="form-group">
+      <label>Họ tên</label>
+      <input type="text" id="reg-name" placeholder="Nguyễn Văn A">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="reg-email" placeholder="example@email.com">
+    </div>
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" id="reg-pass" placeholder="Tối thiểu 6 ký tự">
+    </div>
+    <div id="reg-msg"></div>
+    <button class="btn-submit" id="btn-register" onclick="register()">
+      <i class="ti ti-user-plus"></i> Đăng ký
+    </button>
+    <p class="modal-switch">Đã có tài khoản? <a onclick="openModal('login')">Đăng nhập</a></p>
+  </div>
+</div>
+
+<!-- HERO -->
 <div class="hero">
   <div class="logo-badge">
     <i class="ti ti-device-laptop"></i>
-    <span>Smartlaptop Store</span>
+    <span>Smartlaptop Store Test </span>
   </div>
-  <h1>Smartlaptop<br><span>giá tốt nhất Hà Nội</span></h1>
+  <h1>Laptop chính hãng<br><span>giá tốt nhất Hà Nội</span></h1>
   <p class="hero-sub">Chuyên Surface, MacBook, Dell — bảo hành đầy đủ</p>
   <div class="cta-row">
     <a class="btn-primary" href="tel:0972855866">
@@ -277,14 +280,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
+<!-- SẢN PHẨM -->
 <div class="section">
   <p class="section-label">Sản phẩm nổi bật</p>
   <div class="products-grid">
-
     <div class="product-card">
-      <div class="product-icon-wrap">
-        <i class="ti ti-device-laptop"></i>
-      </div>
+      <div class="product-icon-wrap"><i class="ti ti-device-laptop"></i></div>
       <p class="product-name">Surface Pro 8</p>
       <div class="product-specs">
         <span class="spec-tag">Intel i5</span>
@@ -292,15 +293,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <span class="spec-tag">SSD 256GB</span>
       </div>
       <p class="product-price">12.500.000<span class="currency">₫</span></p>
-      <a class="btn-buy" href="tel:0972855866">
-        <i class="ti ti-phone"></i> Đặt mua ngay
-      </a>
+      <a class="btn-buy" href="tel:0972855866"><i class="ti ti-phone"></i> Đặt mua ngay</a>
     </div>
-
     <div class="product-card">
-      <div class="product-icon-wrap">
-        <i class="ti ti-device-laptop"></i>
-      </div>
+      <div class="product-icon-wrap"><i class="ti ti-device-laptop"></i></div>
       <p class="product-name">Surface Pro 9</p>
       <div class="product-specs">
         <span class="spec-tag">Intel i5</span>
@@ -308,16 +304,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <span class="spec-tag">SSD 256GB</span>
       </div>
       <p class="product-price">14.500.000<span class="currency">₫</span></p>
-      <a class="btn-buy" href="tel:0972855866">
-        <i class="ti ti-phone"></i> Đặt mua ngay
-      </a>
+      <a class="btn-buy" href="tel:0972855866"><i class="ti ti-phone"></i> Đặt mua ngay</a>
     </div>
-
   </div>
 </div>
 
 <div class="divider"></div>
 
+<!-- LIÊN HỆ -->
 <div class="contact-section">
   <div class="contact-inner">
     <p class="section-label">Liên hệ tư vấn</p>
@@ -330,12 +324,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         </div>
       </div>
       <div class="contact-btns">
-        <a class="btn-call" href="tel:0972855866">
-          <i class="ti ti-phone"></i> Gọi ngay
-        </a>
-        <a class="btn-zalo" href="https://zalo.me/0972855866">
-          <i class="ti ti-message-circle"></i> Chat Zalo
-        </a>
+        <a class="btn-call" href="tel:0972855866"><i class="ti ti-phone"></i> Gọi ngay</a>
+        <a class="btn-zalo" href="https://zalo.me/0972855866"><i class="ti ti-message-circle"></i> Chat Zalo</a>
       </div>
     </div>
   </div>
@@ -343,5 +333,80 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <div class="footer">© 2026 Smartlaptop Store · 0972 855 866</div>
 
+<script>
+const SUPABASE_URL = 'https://hckjguqiyvbnsgrrjjhlk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhja2pndXFpeXZibnNncmpqaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNjI2MDMsImV4cCI6MjA5NjkzODYwM30.SY3jSOBc0kCHfV01B1kPwujOo64QCJbG5fDJzHoJmfo';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function openModal(type) {
+  closeModal();
+  document.getElementById('modal-' + type).classList.add('active');
+}
+function closeModal() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(); });
+});
+
+function showMsg(id, text, isError) {
+  const el = document.getElementById(id);
+  el.innerHTML = '<div class="' + (isError ? 'msg-error' : 'msg-success') + '">' + text + '</div>';
+}
+
+async function register() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  if (!name || !email || !pass) { showMsg('reg-msg', 'Vui lòng điền đầy đủ thông tin', true); return; }
+  if (pass.length < 6) { showMsg('reg-msg', 'Mật khẩu phải có ít nhất 6 ký tự', true); return; }
+  const btn = document.getElementById('btn-register');
+  btn.disabled = true; btn.textContent = 'Đang đăng ký...';
+  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  btn.disabled = false; btn.innerHTML = '<i class="ti ti-user-plus"></i> Đăng ký';
+  if (error) { showMsg('reg-msg', error.message, true); }
+  else { showMsg('reg-msg', '✅ Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.', false); }
+}
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showMsg('login-msg', 'Vui lòng điền email và mật khẩu', true); return; }
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Đang đăng nhập...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.innerHTML = '<i class="ti ti-login"></i> Đăng nhập';
+  if (error) { showMsg('login-msg', 'Email hoặc mật khẩu không đúng', true); }
+  else { closeModal(); updateNav(data.user); }
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  updateNav(null);
+}
+
+function updateNav(user) {
+  const emailEl = document.getElementById('nav-user-email');
+  const btnLogin = document.getElementById('btn-open-login');
+  const btnLogout = document.getElementById('btn-logout');
+  if (user) {
+    emailEl.textContent = user.email;
+    btnLogin.style.display = 'none';
+    btnLogout.style.display = 'inline-flex';
+  } else {
+    emailEl.textContent = '';
+    btnLogin.style.display = 'inline-flex';
+    btnLogout.style.display = 'none';
+  }
+}
+
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) updateNav(data.session.user);
+});
+sb.auth.onAuthStateChange((event, session) => {
+  updateNav(session ? session.user : null);
+});
+</script>
 </body>
 </html>
