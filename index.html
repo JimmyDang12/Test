@@ -56,7 +56,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 }
 .hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(55,138,221,0.12); }
 .hero::after { content: ''; position: absolute; bottom: -40px; left: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(55,138,221,0.08); }
-.logo-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(55,138,221,0.15); border: 0.5px solid rgba(55,138,221,0.35); border-radius: 999px; padding: 6px 16px; margin-bottom: 1rem; }
+.logo-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(55,138,221,0.15); border: 0.5px solid rgba(55,138,221,0.35); border-radius: 999px; padding: 6px 16px; margin-bottom: 1.5rem; }
 .logo-badge i { color: #5ba8f5; font-size: 16px; }
 .logo-badge span { color: #a0c4f1; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
 .hero h1 { font-size: 32px; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 0.5rem; }
@@ -64,7 +64,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .hero-sub { font-size: 15px; color: #7a9bbf; margin-bottom: 2rem; }
 .cta-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .btn-primary { display: inline-flex; align-items: center; gap: 6px; background: #378ADD; color: #fff; border: none; border-radius: 8px; padding: 12px 22px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; }
-.btn-outline { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: #a0c4f1; border: 0.5px solid rgba(55,138,221,0.4); border-radius: 8px; padding: 12px 22px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; }
+.btn-outline { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: #a0c4f1; border: 0.5px solid rgba(55,138,221,0.4); border-radius: 8px; padding: 12px 22px; font-size: 15px; cursor: pointer; text-decoration: none; }
 
 /* PRODUCTS */
 .section { padding: 2rem 1.5rem; max-width: 960px; margin: 0 auto; }
@@ -75,7 +75,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .filter-btn.active { background: #378ADD; color: #fff; border-color: #378ADD; }
 
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-.product-card { background: #fff; border: 0.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s, border-color 0.2s; cursor: pointer; text-decoration: none; color: inherit; }
+.product-card { background: #fff; border: 0.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s, border-color 0.2s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
 .product-card:hover { border-color: #378ADD; box-shadow: 0 4px 20px rgba(55,138,221,0.1); }
 .product-img { width: 100%; height: 180px; object-fit: cover; background: #f0f4f9; display: flex; align-items: center; justify-content: center; }
 .product-img img { width: 100%; height: 180px; object-fit: cover; }
@@ -95,14 +95,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .empty-state { text-align: center; padding: 4rem 2rem; color: #888; grid-column: 1/-1; }
 .empty-state i { font-size: 48px; margin-bottom: 1rem; display: block; opacity: 0.4; }
 
-/* LOGIN REQUIRED STATE */
-.login-required { display: none; text-align: center; padding: 4rem 2rem; color: #666; grid-column: 1/-1; }
-.login-required.show { display: block; }
-.login-required i { font-size: 64px; margin-bottom: 1rem; display: block; opacity: 0.3; color: #378ADD; }
-.login-required h3 { font-size: 18px; margin-bottom: 0.5rem; color: #1a1a1a; }
-.login-required p { font-size: 14px; margin-bottom: 1.5rem; }
-.login-required .btn-primary { margin-top: 1rem; }
-
 /* PRODUCT DETAIL MODAL */
 .detail-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 600px; margin: 1rem; position: relative; max-height: 90vh; overflow-y: auto; }
 .detail-img { width: 100%; height: 260px; object-fit: cover; border-radius: 16px 16px 0 0; background: #E6F1FB; display: flex; align-items: center; justify-content: center; }
@@ -120,7 +112,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .detail-actions { display: flex; gap: 10px; }
 .btn-call-big { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; background: #22a06b; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; }
 .btn-zalo-big { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0068FF; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; }
-.detail-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.4); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; cursor: pointer; }
+.detail-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.4); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 16px; }
 
 /* CONTACT */
 .divider { height: 0.5px; background: #e0e0e0; margin: 0 1.5rem; }
@@ -215,12 +207,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
   <div class="products-grid" id="products-grid">
-    <div class="login-required show" id="login-required-msg">
-      <i class="ti ti-lock"></i>
-      <h3>Vui lòng đăng nhập</h3>
-      <p>Bạn cần đăng nhập để xem danh sách sản phẩm</p>
-      <button class="btn-primary" onclick="openModal('login')"><i class="ti ti-login"></i> Đăng nhập</button>
-    </div>
+    <div class="empty-state"><i class="ti ti-loader"></i>Đang tải sản phẩm...</div>
   </div>
 </div>
 
@@ -250,12 +237,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <script>
 const SUPABASE_URL = 'https://hckjguqiyvbnsgrjjhlk.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhja2pndXFpeXZibnNncmpqaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNjI2MDMsImV4cCI6MjA5NjkzODYwM30.SY3jSOBc0kCHf[...]
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhja2pndXFpeXZibnNncmpqaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNjI2MDMsImV4cCI6MjA5NjkzODYwM30.SY3jSOBc0kCHfV01B1kPwujOo64QCJbG5fDJzHoJmfo';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let allProducts = [];
-let isLoggedIn = false;
 
 // AUTH
 function openModal(type) { closeModal(); document.getElementById('modal-' + type).classList.add('active'); }
@@ -298,32 +284,34 @@ function updateNav(user) {
   const emailEl = document.getElementById('nav-user-email');
   const btnLogin = document.getElementById('btn-open-login');
   const btnLogout = document.getElementById('btn-logout');
-  if (user) {
-    isLoggedIn = true;
-    emailEl.textContent = user.email;
-    btnLogin.style.display = 'none';
-    btnLogout.style.display = 'inline-flex';
-    loadProducts();
-  } else {
-    isLoggedIn = false;
-    emailEl.textContent = '';
-    btnLogin.style.display = 'inline-flex';
-    btnLogout.style.display = 'none';
-    showLoginRequired();
-  }
+  if (user) { emailEl.textContent = user.email; btnLogin.style.display = 'none'; btnLogout.style.display = 'inline-flex'; }
+  else { emailEl.textContent = ''; btnLogin.style.display = 'inline-flex'; btnLogout.style.display = 'none'; }
 }
 
 function showLoginRequired() {
-  const grid = document.getElementById('products-grid');
-  grid.innerHTML = '<div class="login-required show" id="login-required-msg"><i class="ti ti-lock"></i><h3>Vui lòng đăng nhập</h3><p>Bạn cần đăng nhập để xem danh sách sản phẩm</p><button class="btn-primary" onclick="openModal(\'login\')"><i class="ti ti-login"></i> Đăng nhập</button></div>';
+  document.getElementById('products-grid').innerHTML = `
+    <div class="empty-state" style="grid-column:1/-1">
+      <i class="ti ti-lock"></i>
+      <p style="font-size:16px;font-weight:600;margin-bottom:8px;color:#1a1a1a">Vui lòng đăng nhập để xem sản phẩm</p>
+      <p style="margin-bottom:1.5rem;font-size:14px">Đăng nhập để xem đầy đủ thông tin và giá sản phẩm</p>
+      <button class="btn-primary" onclick="openModal('login')" style="margin:0 auto">
+        <i class="ti ti-login"></i> Đăng nhập ngay
+      </button>
+    </div>`;
 }
 
-sb.auth.getSession().then(({ data }) => { if (data.session) updateNav(data.session.user); else showLoginRequired(); });
-sb.auth.onAuthStateChange((e, session) => { updateNav(session ? session.user : null); });
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) { updateNav(data.session.user); loadProducts(); }
+  else { updateNav(null); showLoginRequired(); }
+});
+sb.auth.onAuthStateChange((e, session) => {
+  updateNav(session ? session.user : null);
+  if (session) loadProducts();
+  else showLoginRequired();
+});
 
 // PRODUCTS
 async function loadProducts() {
-  if (!isLoggedIn) { showLoginRequired(); return; }
   const { data, error } = await sb.from('Products').select('*').order('created_at', { ascending: false });
   if (error) { document.getElementById('products-grid').innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i>Không thể tải sản phẩm</div>'; return; }
   allProducts = data;
@@ -357,7 +345,6 @@ function renderProducts(data) {
 }
 
 function filterProducts(status, btn) {
-  if (!isLoggedIn) { openModal('login'); return; }
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const filtered = status === 'all' ? allProducts : allProducts.filter(p => p.status === status);
@@ -395,6 +382,8 @@ function openDetail(p) {
 }
 
 function closeDetail() { document.getElementById('modal-detail').classList.remove('active'); }
+
+loadProducts();
 </script>
 </body>
 </html>
