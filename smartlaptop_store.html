@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smartlaptop Store</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6f8; color: #1a1a1a; }
+
+.hero {
+  background: linear-gradient(135deg, #0a1628 0%, #1a2f4e 50%, #0f2040 100%);
+  padding: 3rem 1.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(55,138,221,0.12);
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(55,138,221,0.08);
+}
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(55,138,221,0.15);
+  border: 0.5px solid rgba(55,138,221,0.35);
+  border-radius: 999px;
+  padding: 6px 16px;
+  margin-bottom: 1.5rem;
+}
+.logo-badge i { color: #5ba8f5; font-size: 16px; }
+.logo-badge span { color: #a0c4f1; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
+.hero h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+.hero h1 span { color: #5ba8f5; }
+.hero-sub {
+  font-size: 15px;
+  color: #7a9bbf;
+  margin-bottom: 2rem;
+}
+.cta-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #378ADD;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #a0c4f1;
+  border: 0.5px solid rgba(55,138,221,0.4);
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.section { padding: 2rem 1.5rem; max-width: 900px; margin: 0 auto; }
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.product-card {
+  background: #ffffff;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.product-card:hover {
+  border-color: #378ADD;
+  box-shadow: 0 4px 20px rgba(55,138,221,0.1);
+}
+.product-icon-wrap {
+  width: 52px; height: 52px;
+  background: #E6F1FB;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1rem;
+}
+.product-icon-wrap i { font-size: 24px; color: #185FA5; }
+.product-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.product-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1rem;
+}
+.spec-tag {
+  font-size: 12px;
+  background: #f5f6f8;
+  color: #555;
+  border-radius: 999px;
+  padding: 4px 12px;
+  border: 0.5px solid #e0e0e0;
+}
+.product-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: #185FA5;
+  margin-bottom: 1rem;
+}
+.product-price .currency {
+  font-size: 14px;
+  color: #888;
+  font-weight: 400;
+  margin-left: 2px;
+}
+.btn-buy {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #378ADD;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-buy:hover { background: #185FA5; }
+
+.divider {
+  height: 0.5px;
+  background: #e0e0e0;
+  margin: 0 1.5rem;
+}
+
+.contact-section {
+  padding: 2rem 1.5rem;
+  background: #f0f4f9;
+}
+.contact-inner { max-width: 900px; margin: 0 auto; }
+.contact-card {
+  background: #ffffff;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.contact-info { display: flex; align-items: center; gap: 14px; }
+.contact-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: #B5D4F4;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600; color: #0C447C;
+}
+.contact-name { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+.contact-phone { font-size: 14px; color: #666; margin-top: 3px; }
+.btn-zalo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0068FF;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-zalo:hover { background: #0052cc; }
+.btn-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #22a06b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-call:hover { background: #1a8057; }
+.contact-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.footer {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 13px;
+  color: #999;
+  background: #fff;
+  border-top: 0.5px solid #e0e0e0;
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 24px; }
+  .products-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo-badge">
+    <i class="ti ti-device-laptop"></i>
+    <span>Smartlaptop Store</span>
+  </div>
+  <h1>Laptop chính hãng<br><span>giá tốt nhất Hà Nội</span></h1>
+  <p class="hero-sub">Chuyên Surface, MacBook, Dell — bảo hành đầy đủ</p>
+  <div class="cta-row">
+    <a class="btn-primary" href="tel:0972855866">
+      <i class="ti ti-phone"></i> Gọi ngay
+    </a>
+    <a class="btn-outline" href="https://zalo.me/0972855866">
+      <i class="ti ti-message-circle"></i> Nhắn Zalo
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-label">Sản phẩm nổi bật</p>
+  <div class="products-grid">
+
+    <div class="product-card">
+      <div class="product-icon-wrap">
+        <i class="ti ti-device-laptop"></i>
+      </div>
+      <p class="product-name">Surface Pro 8</p>
+      <div class="product-specs">
+        <span class="spec-tag">Intel i5</span>
+        <span class="spec-tag">RAM 8GB</span>
+        <span class="spec-tag">SSD 256GB</span>
+      </div>
+      <p class="product-price">12.500.000<span class="currency">₫</span></p>
+      <a class="btn-buy" href="tel:0972855866">
+        <i class="ti ti-phone"></i> Đặt mua ngay
+      </a>
+    </div>
+
+    <div class="product-card">
+      <div class="product-icon-wrap">
+        <i class="ti ti-device-laptop"></i>
+      </div>
+      <p class="product-name">Surface Pro 9</p>
+      <div class="product-specs">
+        <span class="spec-tag">Intel i5</span>
+        <span class="spec-tag">RAM 8GB</span>
+        <span class="spec-tag">SSD 256GB</span>
+      </div>
+      <p class="product-price">14.500.000<span class="currency">₫</span></p>
+      <a class="btn-buy" href="tel:0972855866">
+        <i class="ti ti-phone"></i> Đặt mua ngay
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="contact-section">
+  <div class="contact-inner">
+    <p class="section-label">Liên hệ tư vấn</p>
+    <div class="contact-card">
+      <div class="contact-info">
+        <div class="contact-avatar">SL</div>
+        <div>
+          <p class="contact-name">Smartlaptop Store</p>
+          <p class="contact-phone">0972 855 866 · Hỗ trợ 8:00 – 21:00</p>
+        </div>
+      </div>
+      <div class="contact-btns">
+        <a class="btn-call" href="tel:0972855866">
+          <i class="ti ti-phone"></i> Gọi ngay
+        </a>
+        <a class="btn-zalo" href="https://zalo.me/0972855866">
+          <i class="ti ti-message-circle"></i> Chat Zalo
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">© 2026 Smartlaptop Store · 0972 855 866</div>
+
+</body>
+</html>
