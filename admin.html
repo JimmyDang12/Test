@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Smartlaptop Store</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6f8; color: #1a1a1a; }
+
+.navbar {
+  background: #0a1628; padding: 0.75rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { color: #5ba8f5; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.nav-logo i { font-size: 18px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-email { font-size: 13px; color: #a0c4f1; }
+.btn-nav {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(55,138,221,0.2); color: #5ba8f5;
+  border: 0.5px solid rgba(55,138,221,0.4); border-radius: 8px;
+  padding: 7px 14px; font-size: 13px; cursor: pointer;
+}
+.btn-logout {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: #7a9bbf;
+  border: 0.5px solid rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 7px 14px; font-size: 13px; cursor: pointer;
+}
+
+/* LOGIN SCREEN */
+.login-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #0a1628, #1a2f4e);
+}
+.login-card {
+  background: #fff; border-radius: 16px; padding: 2.5rem;
+  width: 100%; max-width: 380px; margin: 1rem;
+}
+.login-card h2 { font-size: 22px; font-weight: 600; margin-bottom: 0.25rem; }
+.login-sub { font-size: 14px; color: #888; margin-bottom: 1.5rem; }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
+.form-group input {
+  width: 100%; padding: 10px 14px; border: 0.5px solid #ddd;
+  border-radius: 8px; font-size: 14px; outline: none;
+}
+.form-group input:focus { border-color: #378ADD; }
+.btn-submit {
+  width: 100%; padding: 12px; background: #378ADD; color: #fff;
+  border: none; border-radius: 8px; font-size: 15px; font-weight: 500;
+  cursor: pointer; margin-top: 0.5rem;
+}
+.btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+.msg-error { font-size: 13px; color: #e24b4a; margin-top: 8px; padding: 8px 12px; background: #fff0f0; border-radius: 6px; }
+
+/* ADMIN CONTENT */
+.admin-content { display: none; }
+.page { padding: 2rem 1.5rem; max-width: 960px; margin: 0 auto; }
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+}
+.page-title { font-size: 20px; font-weight: 600; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #378ADD; color: #fff; border: none; border-radius: 8px;
+  padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer;
+}
+.btn-danger {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #e24b4a; color: #fff; border: none; border-radius: 8px;
+  padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+.btn-edit {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #f5f6f8; color: #333; border: 0.5px solid #ddd; border-radius: 8px;
+  padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+
+/* PRODUCT TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 0.5px solid #e0e0e0; }
+thead { background: #f5f6f8; }
+th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+td { padding: 12px 16px; font-size: 14px; border-top: 0.5px solid #f0f0f0; vertical-align: middle; }
+tr:hover td { background: #fafafa; }
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 500;
+}
+.badge-green { background: #e8f8f0; color: #1a8057; }
+.badge-red { background: #fff0f0; color: #e24b4a; }
+.badge-blue { background: #e6f1fb; color: #185FA5; }
+.td-actions { display: flex; gap: 8px; }
+.empty-state { text-align: center; padding: 3rem; color: #888; }
+.empty-state i { font-size: 48px; margin-bottom: 1rem; display: block; }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 100;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: #fff; border-radius: 16px; padding: 2rem;
+  width: 100%; max-width: 560px; margin: 1rem;
+  max-height: 90vh; overflow-y: auto; position: relative;
+}
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.modal-title { font-size: 18px; font-weight: 600; }
+.modal-close { background: none; border: none; cursor: pointer; color: #888; font-size: 20px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group select {
+  width: 100%; padding: 10px 14px; border: 0.5px solid #ddd;
+  border-radius: 8px; font-size: 14px; outline: none; background: #fff;
+}
+.form-group textarea {
+  width: 100%; padding: 10px 14px; border: 0.5px solid #ddd;
+  border-radius: 8px; font-size: 14px; outline: none; resize: vertical; min-height: 80px;
+}
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
+.btn-cancel {
+  padding: 10px 18px; background: #f5f6f8; color: #333;
+  border: 0.5px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;
+}
+.msg-success { font-size: 13px; color: #1a8057; padding: 8px 12px; background: #f0fff8; border-radius: 6px; margin-top: 8px; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.stat-card {
+  background: #fff; border: 0.5px solid #e0e0e0; border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+.stat-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+.stat-value { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <h2>🔐 Admin Login</h2>
+    <p class="login-sub">Chỉ dành cho quản trị viên Smartlaptop Store</p>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="admin@email.com">
+    </div>
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" id="login-pass" placeholder="••••••••">
+    </div>
+    <div id="login-msg"></div>
+    <button class="btn-submit" id="btn-login" onclick="login()">
+      <i class="ti ti-login"></i> Đăng nhập
+    </button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-content" id="admin-content">
+  <nav class="navbar">
+    <div class="nav-logo"><i class="ti ti-shield-check"></i> Admin Panel</div>
+    <div class="nav-right">
+      <span class="nav-email" id="admin-email"></span>
+      <a class="btn-nav" href="index.html" target="_blank"><i class="ti ti-external-link"></i> Xem web</a>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Đăng xuất</button>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <p class="stat-label">Tổng sản phẩm</p>
+        <p class="stat-value" id="stat-total">—</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">Còn hàng</p>
+        <p class="stat-value" id="stat-available">—</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">Đã bán</p>
+        <p class="stat-value" id="stat-sold">—</p>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <p class="page-title">Danh sách sản phẩm</p>
+      <button class="btn-primary" onclick="openAddModal()">
+        <i class="ti ti-plus"></i> Thêm sản phẩm
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tên sản phẩm</th>
+            <th>Serial/IMEI</th>
+            <th>Màu</th>
+            <th>Pin</th>
+            <th>Ngoại hình</th>
+            <th>Giá bán</th>
+            <th>Trạng thái</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="product-list">
+          <tr><td colspan="8" class="empty-state"><i class="ti ti-loader"></i>Đang tải...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL THÊM/SỬA -->
+<div class="modal-overlay" id="modal-product">
+  <div class="modal">
+    <div class="modal-header">
+      <p class="modal-title" id="modal-title">Thêm sản phẩm</p>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <input type="hidden" id="edit-id">
+    <div class="form-row">
+      <div class="form-group" style="grid-column: 1/-1">
+        <label>Tên sản phẩm</label>
+        <input type="text" id="f-name" placeholder="VD: Surface Pro 9 i5 RAM 8GB">
+      </div>
+      <div class="form-group">
+        <label>Serial / IMEI</label>
+        <input type="text" id="f-serial" placeholder="VD: 123456789">
+      </div>
+      <div class="form-group">
+        <label>Màu sắc</label>
+        <input type="text" id="f-color" placeholder="VD: Platinum, Black">
+      </div>
+      <div class="form-group">
+        <label>Tình trạng pin (%)</label>
+        <select id="f-battery">
+          <option value="">-- Chọn --</option>
+          <option>100</option><option>99</option><option>98</option>
+          <option>97</option><option>96</option><option>95</option>
+          <option>90</option><option>85</option><option>80</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ngoại hình</label>
+        <select id="f-condition">
+          <option value="">-- Chọn --</option>
+          <option>Mới 100% fullbox</option>
+          <option>Like New 99%</option>
+          <option>Đẹp 98%</option>
+          <option>Đẹp 97%</option>
+          <option>Đẹp 95%</option>
+          <option>Trầy nhẹ 90%</option>
+          <option>Trầy nhiều 85%</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Giá bán (₫)</label>
+        <input type="number" id="f-price" placeholder="VD: 14500000">
+      </div>
+      <div class="form-group">
+        <label>Trạng thái</label>
+        <select id="f-status">
+          <option value="con_hang">Còn hàng</option>
+          <option value="da_ban">Đã bán</option>
+          <option value="dang_ve">Đang về</option>
+        </select>
+      </div>
+      <div class="form-group" style="grid-column: 1/-1">
+        <label>Cấu hình / Ghi chú</label>
+        <textarea id="f-specs" placeholder="VD: Intel i5-1235U, RAM 8GB, SSD 256GB, Windows 11..."></textarea>
+      </div>
+      <div class="form-group" style="grid-column: 1/-1">
+        <label>Link ảnh (image URL)</label>
+        <input type="text" id="f-image" placeholder="https://...">
+      </div>
+    </div>
+    <div id="modal-msg"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Huỷ</button>
+      <button class="btn-primary" id="btn-save" onclick="saveProduct()">
+        <i class="ti ti-device-floppy"></i> Lưu sản phẩm
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://hckjguqiyvbnsgrjjhlk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhja2pndXFpeXZibnNncmpqaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNjI2MDMsImV4cCI6MjA5NjkzODYwM30.SY3jSOBc0kCHfV01B1kPwujOo64QCJbG5fDJzHoJmfo';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const TABLE = 'Products';
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showLoginMsg('Vui lòng điền đầy đủ'); return; }
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Đang đăng nhập...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Đăng nhập';
+  if (error) { showLoginMsg('Sai email hoặc mật khẩu'); return; }
+  showAdmin(data.user);
+}
+
+function showLoginMsg(msg) {
+  document.getElementById('login-msg').innerHTML = '<div class="msg-error">' + msg + '</div>';
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-content').style.display = 'none';
+}
+
+function showAdmin(user) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-content').style.display = 'block';
+  document.getElementById('admin-email').textContent = user.email;
+  loadProducts();
+}
+
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) showAdmin(data.session.user);
+});
+
+async function loadProducts() {
+  const { data, error } = await sb.from(TABLE).select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+
+  const total = data.length;
+  const available = data.filter(p => p.status === 'con_hang').length;
+  const sold = data.filter(p => p.status === 'da_ban').length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-available').textContent = available;
+  document.getElementById('stat-sold').textContent = sold;
+
+  const tbody = document.getElementById('product-list');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="ti ti-package-off"></i>Chưa có sản phẩm nào. Bấm "Thêm sản phẩm" để bắt đầu!</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(p => {
+    const statusMap = { con_hang: ['badge-green','Còn hàng'], da_ban: ['badge-red','Đã bán'], dang_ve: ['badge-blue','Đang về'] };
+    const [cls, label] = statusMap[p.status] || ['badge-blue', p.status];
+    const price = p['Giá bán'] ? Number(p['Giá bán']).toLocaleString('vi-VN') + '₫' : '—';
+    return `<tr>
+      <td><strong>${p['Tên sản phẩm'] || '—'}</strong></td>
+      <td>${p['Serial'] || '—'}</td>
+      <td>${p['Màu'] || '—'}</td>
+      <td>${p['Tình trạng pin'] ? p['Tình trạng pin'] + '%' : '—'}</td>
+      <td>${p['Ngoại hình'] || '—'}</td>
+      <td><strong>${price}</strong></td>
+      <td><span class="badge ${cls}">${label}</span></td>
+      <td><div class="td-actions">
+        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(p)})'><i class="ti ti-edit"></i></button>
+        <button class="btn-danger" onclick="deleteProduct(${p.id})"><i class="ti ti-trash"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddModal() {
+  document.getElementById('modal-title').textContent = 'Thêm sản phẩm mới';
+  document.getElementById('edit-id').value = '';
+  ['f-name','f-serial','f-color','f-battery','f-condition','f-price','f-status','f-specs','f-image'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-status').value = 'con_hang';
+  document.getElementById('modal-msg').innerHTML = '';
+  document.getElementById('modal-product').classList.add('active');
+}
+
+function openEditModal(p) {
+  document.getElementById('modal-title').textContent = 'Chỉnh sửa sản phẩm';
+  document.getElementById('edit-id').value = p.id;
+  document.getElementById('f-name').value = p['Tên sản phẩm'] || '';
+  document.getElementById('f-serial').value = p['Serial'] || '';
+  document.getElementById('f-color').value = p['Màu'] || '';
+  document.getElementById('f-battery').value = p['Tình trạng pin'] || '';
+  document.getElementById('f-condition').value = p['Ngoại hình'] || '';
+  document.getElementById('f-price').value = p['Giá bán'] || '';
+  document.getElementById('f-status').value = p.status || 'con_hang';
+  document.getElementById('f-specs').value = p['Ghi chú'] || '';
+  document.getElementById('f-image').value = p.image_url || '';
+  document.getElementById('modal-msg').innerHTML = '';
+  document.getElementById('modal-product').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal-product').classList.remove('active');
+}
+
+async function saveProduct() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { document.getElementById('modal-msg').innerHTML = '<div class="msg-error">Vui lòng nhập tên sản phẩm</div>'; return; }
+
+  const payload = {
+    'Tên sản phẩm': name,
+    'Serial': document.getElementById('f-serial').value.trim(),
+    'Màu': document.getElementById('f-color').value.trim(),
+    'Tình trạng pin': document.getElementById('f-battery').value || null,
+    'Ngoại hình': document.getElementById('f-condition').value,
+    'Giá bán': document.getElementById('f-price').value || null,
+    'status': document.getElementById('f-status').value,
+    'Ghi chú': document.getElementById('f-specs').value.trim(),
+    'iamge_url': document.getElementById('f-image').value.trim(),
+  };
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+
+  const editId = document.getElementById('edit-id').value;
+  let error;
+  if (editId) {
+    ({ error } = await sb.from(TABLE).update(payload).eq('id', editId));
+  } else {
+    ({ error } = await sb.from(TABLE).insert(payload));
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-device-floppy"></i> Lưu sản phẩm';
+
+  if (error) {
+    document.getElementById('modal-msg').innerHTML = '<div class="msg-error">Lỗi: ' + error.message + '</div>';
+  } else {
+    closeModal();
+    loadProducts();
+  }
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Xoá sản phẩm này?')) return;
+  await sb.from(TABLE).delete().eq('id', id);
+  loadProducts();
+}
+
+document.getElementById('modal-product').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-product')) closeModal();
+});
+</script>
+</body>
+</html>
