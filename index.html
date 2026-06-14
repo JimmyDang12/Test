@@ -95,6 +95,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .empty-state { text-align: center; padding: 4rem 2rem; color: #888; grid-column: 1/-1; }
 .empty-state i { font-size: 48px; margin-bottom: 1rem; display: block; opacity: 0.4; }
 
+/* SLIDESHOW */
+.slideshow { position: relative; background: #000; border-radius: 16px 16px 0 0; overflow: hidden; }
+.slide-img-wrap { position: relative; width: 100%; height: 260px; }
+.slide-img-wrap img { width: 100%; height: 260px; object-fit: cover; display: block; }
+.slide-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.45); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; z-index: 2; }
+.slide-prev { left: 10px; }
+.slide-next { right: 10px; }
+.slide-counter { position: absolute; bottom: 10px; right: 12px; background: rgba(0,0,0,0.5); color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 999px; }
+.slide-dots { display: flex; justify-content: center; gap: 6px; padding: 10px; background: #000; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); cursor: pointer; transition: background 0.2s; }
+.dot.active { background: #fff; }
+
 /* PRODUCT DETAIL MODAL */
 .detail-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 600px; margin: 1rem; position: relative; max-height: 90vh; overflow-y: auto; }
 .detail-img { width: 100%; height: 260px; object-fit: cover; border-radius: 16px 16px 0 0; background: #E6F1FB; display: flex; align-items: center; justify-content: center; }
@@ -311,8 +323,9 @@ sb.auth.onAuthStateChange((e, session) => {
 });
 
 // PRODUCTS
+// PRODUCTS
 async function loadProducts() {
-  const { data, error } = await sb.from('products').select('*').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('products').select('*, product_images(*)').order('created_at', { ascending: false });
   if (error) { document.getElementById('products-grid').innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i>Không thể tải sản phẩm</div>'; return; }
   allProducts = data;
   renderProducts(data);
@@ -325,8 +338,10 @@ function renderProducts(data) {
   grid.innerHTML = data.map(p => {
     const [cls, label] = statusMap[p.status] || ['badge-blue', p.status || 'Còn hàng'];
     const price = p['Giá bán'] ? Number(p['Giá bán']).toLocaleString('vi-VN') + '₫' : 'Liên hệ';
-    const imgHtml = p.image_url
-      ? `<img src="${p.image_url}" alt="${p['Tên sản phẩm']}" onerror="this.parentElement.innerHTML='<div class=product-img-placeholder><i class=ti ti-device-laptop></i></div>'">`
+    const imgs = (p.product_images || []).sort((a,b) => a.order - b.order);
+    const firstImg = imgs[0];
+    const imgHtml = firstImg
+      ? `<img src="${firstImg.image_url}" alt="${p['Tên sản phẩm']}" onerror="this.parentElement.innerHTML='<div class=product-img-placeholder><i class=ti ti-device-laptop></i></div>'">`
       : `<div class="product-img-placeholder"><i class="ti ti-device-laptop"></i></div>`;
     return `<div class="product-card" onclick='openDetail(${JSON.stringify(p)})'>
       <div class="product-img">${imgHtml}</div>
@@ -351,17 +366,31 @@ function filterProducts(status, btn) {
   renderProducts(filtered);
 }
 
-// DETAIL
+// DETAIL với slideshow
+let slideIndex = 0;
+let slideImages = [];
+
 function openDetail(p) {
   const statusMap = { con_hang: ['badge-green','Còn hàng'], da_ban: ['badge-red','Đã bán'], dang_ve: ['badge-blue','Đang về'] };
   const [cls, label] = statusMap[p.status] || ['badge-blue', p.status || 'Còn hàng'];
   const price = p['Giá bán'] ? Number(p['Giá bán']).toLocaleString('vi-VN') + '₫' : 'Liên hệ';
-  const imgHtml = p.image_url
-    ? `<img src="${p.image_url}" alt="${p['Tên sản phẩm']}">`
-    : `<div class="detail-img-placeholder"><i class="ti ti-device-laptop"></i></div>`;
+  slideImages = (p.product_images || []).sort((a,b) => a.order - b.order);
+  slideIndex = 0;
+
+  const slideshowHtml = slideImages.length > 0 ? `
+    <div class="slideshow">
+      <div class="slide-img-wrap">
+        <img id="slide-img" src="${slideImages[0].image_url}" alt="${p['Tên sản phẩm']}">
+        ${slideImages.length > 1 ? `
+          <button class="slide-btn slide-prev" onclick="changeSlide(-1)"><i class="ti ti-chevron-left"></i></button>
+          <button class="slide-btn slide-next" onclick="changeSlide(1)"><i class="ti ti-chevron-right"></i></button>
+          <div class="slide-counter"><span id="slide-cur">1</span>/${slideImages.length}</div>` : ''}
+      </div>
+      ${slideImages.length > 1 ? `<div class="slide-dots">${slideImages.map((_,i) => `<div class="dot ${i===0?'active':''}" onclick="goSlide(${i})"></div>`).join('')}</div>` : ''}
+    </div>` : `<div class="detail-img-placeholder"><i class="ti ti-device-laptop"></i></div>`;
 
   document.getElementById('detail-content').innerHTML = `
-    <div class="detail-img">${imgHtml}</div>
+    ${slideshowHtml}
     <div class="detail-body">
       <p class="detail-name">${p['Tên sản phẩm'] || '—'}</p>
       <p class="detail-price">${price}</p>
@@ -370,6 +399,7 @@ function openDetail(p) {
         <div class="detail-item"><p class="detail-item-label">Màu sắc</p><p class="detail-item-value">${p['Màu'] || '—'}</p></div>
         <div class="detail-item"><p class="detail-item-label">Tình trạng pin</p><p class="detail-item-value">${p['Tình trạng pin'] ? p['Tình trạng pin'] + '%' : '—'}</p></div>
         <div class="detail-item"><p class="detail-item-label">Ngoại hình</p><p class="detail-item-value">${p['Ngoại hình'] || '—'}</p></div>
+        ${p['cấu hình'] ? `<div class="detail-item" style="grid-column:1/-1"><p class="detail-item-label">Cấu hình</p><p class="detail-item-value">${p['cấu hình']}</p></div>` : ''}
         <div class="detail-item" style="grid-column:1/-1"><p class="detail-item-label">Trạng thái</p><p class="detail-item-value"><span class="badge ${cls}">${label}</span></p></div>
       </div>
       ${p['Ghi chú'] ? `<div class="detail-note"><strong>Ghi chú:</strong> ${p['Ghi chú']}</div>` : ''}
@@ -379,6 +409,18 @@ function openDetail(p) {
       </div>
     </div>`;
   document.getElementById('modal-detail').classList.add('active');
+}
+
+function changeSlide(dir) {
+  slideIndex = (slideIndex + dir + slideImages.length) % slideImages.length;
+  goSlide(slideIndex);
+}
+
+function goSlide(i) {
+  slideIndex = i;
+  document.getElementById('slide-img').src = slideImages[i].image_url;
+  document.getElementById('slide-cur').textContent = i + 1;
+  document.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
 }
 
 function closeDetail() { document.getElementById('modal-detail').classList.remove('active'); }
