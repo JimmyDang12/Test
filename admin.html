@@ -173,7 +173,14 @@ tr:hover td { background: #fafafa; }
       <div class="images-grid" id="images-grid"></div>
       <div class="add-img-row">
         <input type="text" id="f-new-img" placeholder="Dán link ảnh vào đây (https://...)">
-        <button class="btn-add-img" onclick="addImage()"><i class="ti ti-plus"></i> Thêm ảnh</button>
+        <button class="btn-add-img" onclick="addImage()"><i class="ti ti-link"></i> Thêm link</button>
+      </div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+        <input type="file" id="f-upload-img" accept="image/*" style="display:none" onchange="uploadImage(this)">
+        <button class="btn-add-img" style="background:#e6f1fb;color:#185FA5;border-color:#b5d4f4" onclick="document.getElementById('f-upload-img').click()">
+          <i class="ti ti-upload"></i> Upload từ máy tính
+        </button>
+        <span id="upload-progress" style="font-size:13px;color:#888"></span>
       </div>
       <div id="img-msg" style="margin-top:8px"></div>
     </div>
@@ -295,6 +302,30 @@ async function addImage() {
   currentImages.push(data);
   document.getElementById('f-new-img').value = '';
   document.getElementById('img-msg').innerHTML = '<div class="msg-success">✅ Đã thêm ảnh!</div>';
+  setTimeout(() => document.getElementById('img-msg').innerHTML = '', 2000);
+  renderImages();
+}
+
+async function uploadImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const editId = document.getElementById('edit-id').value;
+  if (!editId) { document.getElementById('img-msg').innerHTML = '<div class="msg-error">Lưu sản phẩm trước rồi mới upload ảnh được!</div>'; return; }
+  const progress = document.getElementById('upload-progress');
+  progress.textContent = 'Đang upload...';
+  const ext = file.name.split('.').pop();
+  const fileName = `${editId}_${Date.now()}.${ext}`;
+  const { data, error } = await sb.storage.from('product-images').upload(fileName, file, { upsert: true });
+  if (error) { document.getElementById('img-msg').innerHTML = '<div class="msg-error">Lỗi upload: ' + error.message + '</div>'; progress.textContent = ''; return; }
+  const { data: urlData } = sb.storage.from('product-images').getPublicUrl(fileName);
+  const publicUrl = urlData.publicUrl;
+  const order = currentImages.length + 1;
+  const { data: imgData, error: imgError } = await sb.from('product_images').insert({ product_id: parseInt(editId), image_url: publicUrl, order }).select().single();
+  if (imgError) { document.getElementById('img-msg').innerHTML = '<div class="msg-error">Lỗi lưu ảnh: ' + imgError.message + '</div>'; progress.textContent = ''; return; }
+  currentImages.push(imgData);
+  progress.textContent = '';
+  input.value = '';
+  document.getElementById('img-msg').innerHTML = '<div class="msg-success">✅ Upload thành công!</div>';
   setTimeout(() => document.getElementById('img-msg').innerHTML = '', 2000);
   renderImages();
 }
