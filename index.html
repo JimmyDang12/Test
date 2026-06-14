@@ -106,6 +106,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .zoom-next { right:16px; }
 .zoom-counter { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.7); font-size:13px; }
 
+
+/* ZOOM */
+.zoom-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:999; align-items:center; justify-content:center; }
+.zoom-overlay.active { display:flex; }
+.zoom-overlay img { max-width:95vw; max-height:95vh; object-fit:contain; border-radius:8px; cursor:zoom-out; }
+.zoom-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.15); border:none; color:#fff; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; }
+.zoom-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:none; color:#fff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px; }
+.zoom-prev { left:16px; }
+.zoom-next { right:16px; }
+.zoom-counter { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.7); font-size:13px; }
+
 /* SLIDESHOW */
 .slideshow { position: relative; background: #000; border-radius: 16px 16px 0 0; overflow: hidden; }
 .slide-img-wrap { position: relative; width: 100%; height: 260px; }
@@ -311,77 +322,16 @@ function updateNav(user) {
   else { emailEl.textContent = ''; btnLogin.style.display = 'inline-flex'; btnLogout.style.display = 'none'; }
 }
 
-function showLoginRequired() {
-  document.getElementById('products-grid').innerHTML = `
-    <div class="empty-state" style="grid-column:1/-1">
-      <i class="ti ti-lock"></i>
-      <p style="font-size:16px;font-weight:600;margin-bottom:8px;color:#1a1a1a">Vui lòng đăng nhập để xem sản phẩm</p>
-      <p style="margin-bottom:1.5rem;font-size:14px">Đăng nhập để xem đầy đủ thông tin và giá sản phẩm</p>
-      <button class="btn-primary" onclick="openModal('login')" style="margin:0 auto">
-        <i class="ti ti-login"></i> Đăng nhập ngay
-      </button>
-    </div>`;
-}
-
 sb.auth.getSession().then(({ data }) => {
-  if (data.session) { updateNav(data.session.user); 
-// ZOOM
-let zoomIndex = 0;
-function openZoom(i) {
-  if (!slideImages.length) return;
-  zoomIndex = i;
-  document.getElementById('zoom-img').src = slideImages[i].image_url;
-  document.getElementById('zoom-counter').textContent = slideImages.length > 1 ? `${i+1} / ${slideImages.length}` : '';
-  document.getElementById('zoom-overlay').classList.add('active');
-}
-function closeZoom() { document.getElementById('zoom-overlay').classList.remove('active'); }
-function zoomNav(dir) {
-  zoomIndex = (zoomIndex + dir + slideImages.length) % slideImages.length;
-  document.getElementById('zoom-img').src = slideImages[zoomIndex].image_url;
-  document.getElementById('zoom-counter').textContent = `${zoomIndex+1} / ${slideImages.length}`;
-}
-document.addEventListener('keydown', e => {
-  if (document.getElementById('zoom-overlay').classList.contains('active')) {
-    if (e.key === 'ArrowLeft') zoomNav(-1);
-    if (e.key === 'ArrowRight') zoomNav(1);
-    if (e.key === 'Escape') closeZoom();
-  }
-});
-
-loadProducts(); }
+  if (data.session) { updateNav(data.session.user); loadProducts(); }
   else { updateNav(null); showLoginRequired(); }
 });
 sb.auth.onAuthStateChange((e, session) => {
   updateNav(session ? session.user : null);
-  if (session) 
-// ZOOM
-let zoomIndex = 0;
-function openZoom(i) {
-  if (!slideImages.length) return;
-  zoomIndex = i;
-  document.getElementById('zoom-img').src = slideImages[i].image_url;
-  document.getElementById('zoom-counter').textContent = slideImages.length > 1 ? `${i+1} / ${slideImages.length}` : '';
-  document.getElementById('zoom-overlay').classList.add('active');
-}
-function closeZoom() { document.getElementById('zoom-overlay').classList.remove('active'); }
-function zoomNav(dir) {
-  zoomIndex = (zoomIndex + dir + slideImages.length) % slideImages.length;
-  document.getElementById('zoom-img').src = slideImages[zoomIndex].image_url;
-  document.getElementById('zoom-counter').textContent = `${zoomIndex+1} / ${slideImages.length}`;
-}
-document.addEventListener('keydown', e => {
-  if (document.getElementById('zoom-overlay').classList.contains('active')) {
-    if (e.key === 'ArrowLeft') zoomNav(-1);
-    if (e.key === 'ArrowRight') zoomNav(1);
-    if (e.key === 'Escape') closeZoom();
-  }
-});
-
-loadProducts();
+  if (session) loadProducts();
   else showLoginRequired();
 });
 
-// PRODUCTS
 // PRODUCTS
 async function loadProducts() {
   const { data, error } = await sb.from('products').select('*, product_images(*)').order('created_at', { ascending: false });
@@ -425,7 +375,7 @@ function filterProducts(status, btn) {
   renderProducts(filtered);
 }
 
-// DETAIL với slideshow
+// SLIDESHOW
 let slideIndex = 0;
 let slideImages = [];
 
@@ -484,7 +434,6 @@ function goSlide(i) {
 
 function closeDetail() { document.getElementById('modal-detail').classList.remove('active'); }
 
-
 // ZOOM
 let zoomIndex = 0;
 function openZoom(i) {
@@ -508,14 +457,13 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// auth handles loadProducts()
 </script>
 
 <!-- ZOOM MODAL -->
 <div class="zoom-overlay" id="zoom-overlay" onclick="closeZoom()">
   <button class="zoom-close" onclick="closeZoom()"><i class="ti ti-x"></i></button>
   <button class="zoom-nav zoom-prev" onclick="event.stopPropagation();zoomNav(-1)"><i class="ti ti-chevron-left"></i></button>
-  <img id="zoom-img" src="" alt="">
+  <img id="zoom-img" src="" alt="" onclick="event.stopPropagation()">
   <button class="zoom-nav zoom-next" onclick="event.stopPropagation();zoomNav(1)"><i class="ti ti-chevron-right"></i></button>
   <div class="zoom-counter" id="zoom-counter"></div>
 </div>
