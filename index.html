@@ -312,7 +312,7 @@ sb.auth.onAuthStateChange((e, session) => {
 
 // PRODUCTS
 async function loadProducts() {
-  const { data, error } = await sb.from('Products').select('*').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('products').select('*').order('created_at', { ascending: false });
   if (error) { document.getElementById('products-grid').innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i>Không thể tải sản phẩm</div>'; return; }
   allProducts = data;
   renderProducts(data);
