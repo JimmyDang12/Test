@@ -95,6 +95,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .empty-state { text-align: center; padding: 4rem 2rem; color: #888; grid-column: 1/-1; }
 .empty-state i { font-size: 48px; margin-bottom: 1rem; display: block; opacity: 0.4; }
 
+
+/* ZOOM */
+.zoom-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:999; align-items:center; justify-content:center; }
+.zoom-overlay.active { display:flex; }
+.zoom-overlay img { max-width:95vw; max-height:95vh; object-fit:contain; border-radius:8px; cursor:zoom-out; }
+.zoom-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.15); border:none; color:#fff; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; }
+.zoom-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:none; color:#fff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px; }
+.zoom-prev { left:16px; }
+.zoom-next { right:16px; }
+.zoom-counter { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.7); font-size:13px; }
+
 /* SLIDESHOW */
 .slideshow { position: relative; background: #000; border-radius: 16px 16px 0 0; overflow: hidden; }
 .slide-img-wrap { position: relative; width: 100%; height: 260px; }
@@ -313,12 +324,60 @@ function showLoginRequired() {
 }
 
 sb.auth.getSession().then(({ data }) => {
-  if (data.session) { updateNav(data.session.user); loadProducts(); }
+  if (data.session) { updateNav(data.session.user); 
+// ZOOM
+let zoomIndex = 0;
+function openZoom(i) {
+  if (!slideImages.length) return;
+  zoomIndex = i;
+  document.getElementById('zoom-img').src = slideImages[i].image_url;
+  document.getElementById('zoom-counter').textContent = slideImages.length > 1 ? `${i+1} / ${slideImages.length}` : '';
+  document.getElementById('zoom-overlay').classList.add('active');
+}
+function closeZoom() { document.getElementById('zoom-overlay').classList.remove('active'); }
+function zoomNav(dir) {
+  zoomIndex = (zoomIndex + dir + slideImages.length) % slideImages.length;
+  document.getElementById('zoom-img').src = slideImages[zoomIndex].image_url;
+  document.getElementById('zoom-counter').textContent = `${zoomIndex+1} / ${slideImages.length}`;
+}
+document.addEventListener('keydown', e => {
+  if (document.getElementById('zoom-overlay').classList.contains('active')) {
+    if (e.key === 'ArrowLeft') zoomNav(-1);
+    if (e.key === 'ArrowRight') zoomNav(1);
+    if (e.key === 'Escape') closeZoom();
+  }
+});
+
+loadProducts(); }
   else { updateNav(null); showLoginRequired(); }
 });
 sb.auth.onAuthStateChange((e, session) => {
   updateNav(session ? session.user : null);
-  if (session) loadProducts();
+  if (session) 
+// ZOOM
+let zoomIndex = 0;
+function openZoom(i) {
+  if (!slideImages.length) return;
+  zoomIndex = i;
+  document.getElementById('zoom-img').src = slideImages[i].image_url;
+  document.getElementById('zoom-counter').textContent = slideImages.length > 1 ? `${i+1} / ${slideImages.length}` : '';
+  document.getElementById('zoom-overlay').classList.add('active');
+}
+function closeZoom() { document.getElementById('zoom-overlay').classList.remove('active'); }
+function zoomNav(dir) {
+  zoomIndex = (zoomIndex + dir + slideImages.length) % slideImages.length;
+  document.getElementById('zoom-img').src = slideImages[zoomIndex].image_url;
+  document.getElementById('zoom-counter').textContent = `${zoomIndex+1} / ${slideImages.length}`;
+}
+document.addEventListener('keydown', e => {
+  if (document.getElementById('zoom-overlay').classList.contains('active')) {
+    if (e.key === 'ArrowLeft') zoomNav(-1);
+    if (e.key === 'ArrowRight') zoomNav(1);
+    if (e.key === 'Escape') closeZoom();
+  }
+});
+
+loadProducts();
   else showLoginRequired();
 });
 
@@ -380,7 +439,7 @@ function openDetail(p) {
   const slideshowHtml = slideImages.length > 0 ? `
     <div class="slideshow">
       <div class="slide-img-wrap">
-        <img id="slide-img" src="${slideImages[0].image_url}" alt="${p['Tên sản phẩm']}">
+        <img id="slide-img" src="${slideImages[0].image_url}" alt="${p['Tên sản phẩm']}" onclick="openZoom(0)" style="cursor:zoom-in">
         ${slideImages.length > 1 ? `
           <button class="slide-btn slide-prev" onclick="changeSlide(-1)"><i class="ti ti-chevron-left"></i></button>
           <button class="slide-btn slide-next" onclick="changeSlide(1)"><i class="ti ti-chevron-right"></i></button>
@@ -425,7 +484,40 @@ function goSlide(i) {
 
 function closeDetail() { document.getElementById('modal-detail').classList.remove('active'); }
 
+
+// ZOOM
+let zoomIndex = 0;
+function openZoom(i) {
+  if (!slideImages.length) return;
+  zoomIndex = i;
+  document.getElementById('zoom-img').src = slideImages[i].image_url;
+  document.getElementById('zoom-counter').textContent = slideImages.length > 1 ? `${i+1} / ${slideImages.length}` : '';
+  document.getElementById('zoom-overlay').classList.add('active');
+}
+function closeZoom() { document.getElementById('zoom-overlay').classList.remove('active'); }
+function zoomNav(dir) {
+  zoomIndex = (zoomIndex + dir + slideImages.length) % slideImages.length;
+  document.getElementById('zoom-img').src = slideImages[zoomIndex].image_url;
+  document.getElementById('zoom-counter').textContent = `${zoomIndex+1} / ${slideImages.length}`;
+}
+document.addEventListener('keydown', e => {
+  if (document.getElementById('zoom-overlay').classList.contains('active')) {
+    if (e.key === 'ArrowLeft') zoomNav(-1);
+    if (e.key === 'ArrowRight') zoomNav(1);
+    if (e.key === 'Escape') closeZoom();
+  }
+});
+
 loadProducts();
 </script>
+
+<!-- ZOOM MODAL -->
+<div class="zoom-overlay" id="zoom-overlay" onclick="closeZoom()">
+  <button class="zoom-close" onclick="closeZoom()"><i class="ti ti-x"></i></button>
+  <button class="zoom-nav zoom-prev" onclick="event.stopPropagation();zoomNav(-1)"><i class="ti ti-chevron-left"></i></button>
+  <img id="zoom-img" src="" alt="">
+  <button class="zoom-nav zoom-next" onclick="event.stopPropagation();zoomNav(1)"><i class="ti ti-chevron-right"></i></button>
+  <div class="zoom-counter" id="zoom-counter"></div>
+</div>
 </body>
 </html>
